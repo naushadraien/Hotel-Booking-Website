@@ -547,7 +547,7 @@ section {
 }
 .bookings .box-container{
    display: grid;
-   grid-template-columns: repeat(auto-fit, 35rem);
+   grid-template-columns: repeat(cover, 35rem);
    gap: 1.5rem;
    justify-content: center;
    align-items: flex-start;

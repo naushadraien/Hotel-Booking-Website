@@ -68,7 +68,8 @@ if(isset($_POST['delete'])){
                         <p>number: <span><?= $fetch_bookings['number']; ?></span></p>
                         <p>check in: <span><?= $fetch_bookings['check_in']; ?></span></p>
                         <p>check out: <span><?= $fetch_bookings['check_out']; ?></span></p>
-                        <p>rooms: <span><?= $fetch_bookings['rooms']; ?></span></p>
+                        <p>room no: <span><?= $fetch_bookings['room_no']; ?></span></p>
+                        <p>room type: <span><?= $fetch_bookings['room_type']; ?></span></p>
                         <p>adults: <span><?= $fetch_bookings['adults']; ?></span></p>
                         <p>childs: <span><?= $fetch_bookings['childs']; ?></span></p>
                         <form action="" method="POST">
