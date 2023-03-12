@@ -18,14 +18,34 @@ if (isset($_POST['check'])) {
 
     $check_in = $_POST['check_in'];
     $check_in = filter_var($check_in, FILTER_SANITIZE_STRING);
+    $check_out = $_POST['check_out'];
+    $check_out = filter_var($check_out, FILTER_SANITIZE_STRING);
+    $current_date = date('Y-m-d');
+    $room_no = $_POST['room_no'];
+    $room_type = $_POST['room_type'];
 
     $total_rooms = 0;
 
     $check_bookings = $conn->prepare("SELECT * FROM `bookings` WHERE check_in = ?");
     $check_bookings->execute([$check_in]);
 
-    while ($fetch_bookings = $check_bookings->fetch(PDO::FETCH_ASSOC)) {
-        $total_rooms += $fetch_bookings['rooms'];
+    if ($check_in < $current_date) {
+        $warning_msg[] = 'Invalid check-in date';
+    } else if ($check_out <= $check_in) {
+        $warning_msg[] = 'Invalid check-out date';
+    } else if ($room_no == '-') {
+        $warning_msg[] = 'Please select a room number';
+    } else {
+        // Check if the room is available for the selected dates
+        $check_bookings = $conn->prepare("SELECT * FROM `bookings` WHERE check_in = ?");
+        $check_bookings->execute([$check_in]);
+        while ($fetch_bookings = $check_bookings->fetch(PDO::FETCH_ASSOC)) {
+            $total_rooms += $fetch_bookings['rooms'];
+            // Check if the selected room is already booked by other user for the selected dates
+            if ($fetch_bookings['room_no'] == $room_no) {
+                $warning_msg[] = 'This room is already booked for the selected dates.';
+            }
+        }
     }
 
     // if the hotel has total 30 rooms 
@@ -37,56 +57,113 @@ if (isset($_POST['check'])) {
 }
 
 //   ---------------For booking of rooms ------------------
+
+//here Phpmailer is used for sending the mail when user booked a room
+use PHPMailer\PHPMailer\PHPMailer;
+use PHPMailer\PHPMailer\SMTP;
+use PHPMailer\PHPMailer\Exception;
+
+require('./PhpMail/Exception.php');
+require('./PhpMail/PHPMailer.php');
+require('./PhpMail/SMTP.php');
+
 if (isset($_POST['book'])) {
     // Added if($user_id != '') function and at last before the main closing bracket as } added else{ $warning_msg[] = 'please login first!'; }
-    if($user_id != ''){
+    if ($user_id != '') {
+        $booking_id = create_unique_id();
+        $name = $_POST['name'];
+        $name = filter_var($name, FILTER_SANITIZE_STRING);
+        $email = $_POST['email'];
+        $email = filter_var($email, FILTER_SANITIZE_STRING);
+        $number = $_POST['number'];
+        $number = filter_var($number, FILTER_SANITIZE_STRING);
+        // $rooms = $_POST['rooms'];
+        // $rooms = filter_var($rooms, FILTER_SANITIZE_STRING);
+        $room_no = $_POST['room_no'];
+        $room_no = filter_var($room_no, FILTER_SANITIZE_STRING);
+        $room_type = $_POST['room_type'];
+        $room_type = filter_var($room_type, FILTER_SANITIZE_STRING);
+        $check_in = $_POST['check_in'];
+        $check_in = filter_var($check_in, FILTER_SANITIZE_STRING);
+        $check_out = $_POST['check_out'];
+        $check_out = filter_var($check_out, FILTER_SANITIZE_STRING);
+        $current_date = date('Y-m-d');
+        $adults = $_POST['adults'];
+        $adults = filter_var($adults, FILTER_SANITIZE_STRING);
+        $childs = $_POST['childs'];
+        $childs = filter_var($childs, FILTER_SANITIZE_STRING);
+
+        //here mail sending main code starts from here
+        //Create an instance; passing `true` enables exceptions
+        $mail = new PHPMailer(true);
+
+        try {
+            //Server settings
+            $mail->isSMTP();                                            //Send using SMTP
+            $mail->Host       = 'smtp.gmail.com';                     //Set the SMTP server to send through
+            $mail->SMTPAuth   = true;                                   //Enable SMTP authentication
+            $mail->Username   = 'rohankumar770123@gmail.com';                     //SMTP username
+            $mail->Password   = 'jxtqclpngmsgpizd';                               //SMTP password
+            $mail->SMTPSecure = PHPMailer::ENCRYPTION_SMTPS;            //Enable implicit TLS encryption
+            $mail->Port       = 465;                                    //TCP port to connect to; use 587 if you have set `SMTPSecure = PHPMailer::ENCRYPTION_STARTTLS`
         
-    $booking_id = create_unique_id();
-    $name = $_POST['name'];
-    $name = filter_var($name, FILTER_SANITIZE_STRING);
-    $email = $_POST['email'];
-    $email = filter_var($email, FILTER_SANITIZE_STRING);
-    $number = $_POST['number'];
-    $number = filter_var($number, FILTER_SANITIZE_STRING);
-    $rooms = $_POST['rooms'];
-    $rooms = filter_var($rooms, FILTER_SANITIZE_STRING);
-    $check_in = $_POST['check_in'];
-    $check_in = filter_var($check_in, FILTER_SANITIZE_STRING);
-    $check_out = $_POST['check_out'];
-    $check_out = filter_var($check_out, FILTER_SANITIZE_STRING);
-    $adults = $_POST['adults'];
-    $adults = filter_var($adults, FILTER_SANITIZE_STRING);
-    $childs = $_POST['childs'];
-    $childs = filter_var($childs, FILTER_SANITIZE_STRING);
-
-    $total_rooms = 0;
-
-    $check_bookings = $conn->prepare("SELECT * FROM `bookings` WHERE check_in = ?");
-    $check_bookings->execute([$check_in]);
-
-    while ($fetch_bookings = $check_bookings->fetch(PDO::FETCH_ASSOC)) {
-        $total_rooms += $fetch_bookings['rooms'];
-    }
-
-    if ($total_rooms >= 30) {
-        $warning_msg[] = 'rooms are not available';
-    } else {
-
-        $verify_bookings = $conn->prepare("SELECT * FROM `bookings` WHERE user_id = ? AND name = ? AND email = ? AND number = ? AND rooms = ? AND check_in = ? AND check_out = ? AND adults = ? AND childs = ?");
-        $verify_bookings->execute([$user_id, $name, $email, $number, $rooms, $check_in, $check_out, $adults, $childs]);
-
-        if ($verify_bookings->rowCount() > 0) {
-            $warning_msg[] = 'room booked already!';
-        } else {
-            $book_room = $conn->prepare("INSERT INTO `bookings`(booking_id, user_id, name, email, number, rooms, check_in, check_out, adults, childs) VALUES(?,?,?,?,?,?,?,?,?,?)");
-            $book_room->execute([$booking_id, $user_id, $name, $email, $number, $rooms, $check_in, $check_out, $adults, $childs]);
+            //Recipients
+            $mail->setFrom('rohankumar770123@gmail.com', 'Rohan');
+            $mail->addAddress($email);     //Add a recipient
+        
+            //Content
+            $mail->isHTML(true);                                  //Set email format to HTML
+            $mail->Subject = 'Room Booked Successfully';
+            $mail->Body    = "Name: $name <br> Email: $email <br> Mobile No: $number<br>Room No: $room_no <br> Room Type: $room_type <br> Check In: $check_in <br> Check Out: $check_out <br> Adults: $adults <br> Childs: $childs";
+        
+            $mail->send();
             $success_msg[] = 'room booked successfully!';
+        } catch (Exception $e) {
+            $warning_msg[] = 'Server Error!';
         }
+        //Mail code ends here
+
+        $total_rooms = 0;
+
+        // Check if the checked-in and checked-out dates are not in the past
+        if ($check_in < $current_date) {
+            $warning_msg[] = 'Invalid check-in date';
+        } else if ($check_out <= $check_in) {
+            $warning_msg[] = 'Invalid check-out date';
+        } else if ($room_no == '-') {
+            $warning_msg[] = 'Please select a room number';
+        } else {
+            // Check if the room is available for the selected dates
+            $check_bookings = $conn->prepare("SELECT * FROM `bookings` WHERE check_in = ?");
+            $check_bookings->execute([$check_in]);
+            while ($fetch_bookings = $check_bookings->fetch(PDO::FETCH_ASSOC)) {
+                $total_rooms += $fetch_bookings['rooms'];
+                // Check if the selected room is already booked by other user for the selected dates
+                if ($fetch_bookings['room_no'] == $room_no) {
+                    $warning_msg[] = 'This room is already booked for the selected dates.';
+                }
+            }
+
+            if ($total_rooms >= 30) {
+                $warning_msg[] = 'Rooms are not available';
+            } else {
+                $verify_bookings = $conn->prepare("SELECT * FROM `bookings` WHERE room_no = ? AND ((check_in <= ? AND check_out >= ?) OR (check_in >= ? AND check_out <= ?) OR (check_in <= ? AND check_out >= ?))");
+                $verify_bookings->execute([$room_no, $check_in, $check_out, $check_in, $check_out, $check_in, $check_out]);
+
+                if ($verify_bookings->rowCount() > 0) {
+                    $warning_msg[] = 'room is already booked for the selected date range!';
+                } else {
+                    $book_room = $conn->prepare("INSERT INTO `bookings`(booking_id, user_id, name, email, number, check_in, check_out, adults, childs, room_no, room_type) VALUES(?,?,?,?,?,?,?,?,?,?,?)");
+                    $book_room->execute([$booking_id, $user_id, $name, $email, $number, $check_in, $check_out, $adults, $childs, $room_no, $room_type]);
+                    $success_msg[] = 'room booked successfully!';
+                }
+            }
+        }
+    } else {
+        $warning_msg[] = 'Please login first!';
     }
-}else{
-    $warning_msg[] = 'please login first!';
- }
 }
+
 
 //   ----------------For Sending of Message in Send us message section------------
 if (isset($_POST['send'])) {
@@ -211,7 +288,7 @@ if (isset($_POST['send'])) {
                         <option value="5">5 childs</option>
                     </select>
                 </div>
-                <div class="box">
+                <!-- <div class="box">
                     <p>rooms <span>*</span></p>
                     <select name="rooms" class="input" required>
                         <option value="1">1 room</option>
@@ -219,6 +296,49 @@ if (isset($_POST['send'])) {
                         <option value="3">3 rooms</option>
                         <option value="4">4 rooms</option>
                         <option value="5">5 rooms</option>
+                    </select>
+                </div> -->
+                <div class="box">
+                    <p>room no. <span>*</span></p>
+                    <select name="room_no" class="input" required>
+                        <option value="-">select your room no.</option>
+                        <option value="1">room no. 1</option>
+                        <option value="2">room no. 2</option>
+                        <option value="3">room no. 3</option>
+                        <option value="4">room no. 4</option>
+                        <option value="5">room no. 5</option>
+                        <option value="6">room no. 6</option>
+                        <option value="7">room no. 7</option>
+                        <option value="8">room no. 8</option>
+                        <option value="9">room no. 9</option>
+                        <option value="10">room no. 10</option>
+                        <option value="12">room no. 12</option>
+                        <option value="13">room no. 13</option>
+                        <option value="14">room no. 14</option>
+                        <option value="15">room no. 15</option>
+                        <option value="16">room no. 16</option>
+                        <option value="17">room no. 17</option>
+                        <option value="18">room no. 18</option>
+                        <option value="19">room no. 19</option>
+                        <option value="20">room no. 20</option>
+                        <option value="21">room no. 21</option>
+                        <option value="22">room no. 22</option>
+                        <option value="23">room no. 23</option>
+                        <option value="24">room no. 24</option>
+                        <option value="25">room no. 25</option>
+                        <option value="26">room no. 26</option>
+                        <option value="27">room no. 27</option>
+                        <option value="28">room no. 28</option>
+                        <option value="29">room no. 29</option>
+                        <option value="30">room no. 30</option>
+                    </select>
+                </div>
+                <div class="box">
+                    <p>room types <span>*</span></p>
+                    <select name="room_type" class="input" required>
+                        <option value="single bed" selected>single bed</option>
+                        <option value="double bed">double bed</option>
+                        <option value="family">family</option>
                     </select>
                 </div>
             </div>
@@ -333,7 +453,7 @@ if (isset($_POST['send'])) {
                     <p>your number <span>*</span></p>
                     <input type="number" name="number" maxlength="10" min="0" max="9999999999" required placeholder="enter your number" class="input">
                 </div>
-                <div class="box">
+                <!-- <div class="box">
                     <p>rooms <span>*</span></p>
                     <select name="rooms" class="input" required>
                         <option value="1" selected>1 room</option>
@@ -342,6 +462,49 @@ if (isset($_POST['send'])) {
                         <option value="4">4 rooms</option>
                         <option value="5">5 rooms</option>
                         <option value="6">6 rooms</option>
+                    </select>
+                </div> -->
+                <div class="box">
+                    <p>room no. <span>*</span></p>
+                    <select name="room_no" class="input" required>
+                        <option value="-">select your room no.</option>
+                        <option value="1">room no. 1</option>
+                        <option value="2">room no. 2</option>
+                        <option value="3">room no. 3</option>
+                        <option value="4">room no. 4</option>
+                        <option value="5">room no. 5</option>
+                        <option value="6">room no. 6</option>
+                        <option value="7">room no. 7</option>
+                        <option value="8">room no. 8</option>
+                        <option value="9">room no. 9</option>
+                        <option value="10">room no. 10</option>
+                        <option value="12">room no. 12</option>
+                        <option value="13">room no. 13</option>
+                        <option value="14">room no. 14</option>
+                        <option value="15">room no. 15</option>
+                        <option value="16">room no. 16</option>
+                        <option value="17">room no. 17</option>
+                        <option value="18">room no. 18</option>
+                        <option value="19">room no. 19</option>
+                        <option value="20">room no. 20</option>
+                        <option value="21">room no. 21</option>
+                        <option value="22">room no. 22</option>
+                        <option value="23">room no. 23</option>
+                        <option value="24">room no. 24</option>
+                        <option value="25">room no. 25</option>
+                        <option value="26">room no. 26</option>
+                        <option value="27">room no. 27</option>
+                        <option value="28">room no. 28</option>
+                        <option value="29">room no. 29</option>
+                        <option value="30">room no. 30</option>
+                    </select>
+                </div>
+                <div class="box">
+                    <p>room types <span>*</span></p>
+                    <select name="room_type" class="input" required>
+                        <option value="single bed" selected>single bed</option>
+                        <option value="double bed">double bed</option>
+                        <option value="family">family</option>
                     </select>
                 </div>
                 <div class="box">
@@ -506,9 +669,9 @@ if (isset($_POST['send'])) {
     <!-- -------------------Reviews Section End--------------------------  -->
     <!-- ------------------------------For Scroll up button---------------------------- -->
     <section>
-    <div class="scroll-up-btn">
-        <i class="fas fa-angle-up"></i>
-    </div>
+        <div class="scroll-up-btn">
+            <i class="fas fa-angle-up"></i>
+        </div>
     </section>
 
     <!-- -------------php footer file link from components folder-----------  -->

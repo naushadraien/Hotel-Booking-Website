@@ -1,7 +1,7 @@
 <!-- ----------------Header Section Start-------------- -->
 <section class="header">
     <div class="flex">
-        <a href="#home" class="logo">Hotels Booking Website</a>
+        <a href="#home" class="logo">Hotel Rooms Booking System</a>
         <a href="#availability" class="btn">check availability</a>
         <div id="menu-btn" class="fas fa-bars"></div>
     </div>

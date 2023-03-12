@@ -74,9 +74,11 @@ if(isset($_POST['cancel'])){
                         <p>number : <span><?= $fetch_booking['number']; ?></span></p>
                         <p>check in : <span><?= $fetch_booking['check_in']; ?></span></p>
                         <p>check out : <span><?= $fetch_booking['check_out']; ?></span></p>
-                        <p>rooms : <span><?= $fetch_booking['rooms']; ?></span></p>
+                        <!-- <p>rooms : <span><?= $fetch_booking['rooms']; ?></span></p> -->
                         <p>adults : <span><?= $fetch_booking['adults']; ?></span></p>
                         <p>childs : <span><?= $fetch_booking['childs']; ?></span></p>
+                        <p>rooms no : <span><?= $fetch_booking['room_no']; ?></span></p>
+                        <p>rooms type : <span><?= $fetch_booking['room_type']; ?></span></p>
                         <p>booking id : <span><?= $fetch_booking['booking_id']; ?></span></p>
                         <form action="" method="POST">
                         <input type="hidden" name="booking_id" value="<?= $fetch_booking['booking_id']; ?>">

@@ -268,6 +268,7 @@ section {
 
 .availability form .flex .box {
    flex: 1 1 20rem;
+   text-transform: capitalize;
 }
 
 .availability form .flex .box p {
@@ -283,6 +284,9 @@ section {
    color: var(--white);
    border-bottom: var(--border);
    margin: 1rem 0;
+}
+.availability form .flex .box:last-child{
+   flex: 0.1 20rem;
 }
 
 .availability form .flex .box input[type="date"]::-webkit-calendar-picker-indicator {
@@ -388,6 +392,7 @@ section {
 
 .reservation form .flex .box {
    flex: 1 1 40rem;
+   text-transform: capitalize;
 }
 
 .reservation form .flex .box p {
@@ -403,6 +408,9 @@ section {
    color: var(--white);
    font-size: 1.8rem;
    width: 100%;
+}
+.reservation form .flex .box:last-child{
+   flex: 0.1 40rem;
 }
 
 .reservation form .flex .box input[type="date"]::-webkit-calendar-picker-indicator {
@@ -584,9 +592,11 @@ section {
 }
 .footer .box-container .box:nth-child(2){
    text-align: center;
+   text-transform: capitalize;
 }
 .footer .box-container .box:last-child{
    text-align: right;
+   text-transform: capitalize;
 }
 .footer .box-container .box:last-child i{
    margin-left: 1.7rem;
