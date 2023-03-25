@@ -55,10 +55,6 @@ if (isset($_POST['delete'])) {
     <section class="grid">
         <h1 class="heading">admins</h1>
         <div class="box-container">
-            <div class="box" style="text-align: center;">
-                <p>create a new admin</p>
-                <a href="register.php" class="btn">register now</a>
-            </div>
 
             <?php
             $select_admins = $conn->prepare("SELECT * FROM `admins`");
@@ -69,7 +65,8 @@ if (isset($_POST['delete'])) {
                     <div class="box" <?php if ($fetch_admins['name'] == 'admin') {
                                             echo 'style="display:none;"';
                                         } ?>>
-                        <p>name: <span><?= $fetch_admins['name']; ?></span></p>
+                        <p>Name: <span><?= $fetch_admins['name']; ?></span></p>
+                        <p>Email: <span><?= $fetch_admins['email']; ?></span></p>
                         <form action="" method="POST">
                             <input type="hidden" name="delete_id" value="<?= $fetch_admins['id']; ?>">
                             <input type="submit" value="delete admins" onclick="return confirm('delete this admin');" name="delete" class="btn">

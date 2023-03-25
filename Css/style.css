@@ -284,13 +284,28 @@ section {
    color: var(--white);
    border-bottom: var(--border);
    margin: 1rem 0;
+
+   display: inline-block;
+   position: relative;
 }
+
 .availability form .flex .box:last-child{
    flex: 0.1 20rem;
 }
 
 .availability form .flex .box input[type="date"]::-webkit-calendar-picker-indicator {
    filter: invert(1);
+
+   background: transparent;
+   bottom: 0;
+   color: transparent;
+   cursor: pointer;
+   height: auto;
+   left: 0;
+   position: absolute;
+   right: 0;
+   top: 0;
+   width: auto;
 }
 
 /* ----------------------about section styling------------------ */
@@ -408,6 +423,9 @@ section {
    color: var(--white);
    font-size: 1.8rem;
    width: 100%;
+
+   display: inline-block;
+   position: relative;
 }
 .reservation form .flex .box:last-child{
    flex: 0.1 40rem;
@@ -415,6 +433,17 @@ section {
 
 .reservation form .flex .box input[type="date"]::-webkit-calendar-picker-indicator {
    filter: invert(1);
+
+   background: transparent;
+   bottom: 0;
+   color: transparent;
+   cursor: pointer;
+   height: auto;
+   left: 0;
+   position: absolute;
+   right: 0;
+   top: 0;
+   width: auto;
 }
 
 /* --------------Gallery section styling-------------- */
@@ -424,6 +453,7 @@ section {
    border-radius: .5rem;
    object-fit: cover;
    margin-bottom: 4rem;
+   -webkit-user-select: none;
    user-select: none;
 }
 .swiper-pagination-bullets.swiper-pagination-horizontal{
@@ -516,6 +546,7 @@ section {
 }
 .reviews .box{
    text-align: center;
+   -webkit-user-select: none;
    user-select: none;
    padding: 2rem;
    margin-bottom: 4rem;
@@ -547,7 +578,7 @@ section {
 }
 .bookings .box-container{
    display: grid;
-   grid-template-columns: repeat(cover, 35rem);
+   grid-template-columns: repeat(auto-fit, 35rem);
    gap: 1.5rem;
    justify-content: center;
    align-items: flex-start;
@@ -561,7 +592,7 @@ section {
 .bookings .box-container .box p{
    line-height: 1.5;
    padding-top: .5rem;
-   font-size: 1.8rem;
+   font-size: 1.55rem;
    color: var(--sub-color);
 }
 .bookings .box-container .box p span{

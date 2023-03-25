@@ -40,7 +40,7 @@ if (isset($_POST['check'])) {
         $check_bookings = $conn->prepare("SELECT * FROM `bookings` WHERE check_in = ?");
         $check_bookings->execute([$check_in]);
         while ($fetch_bookings = $check_bookings->fetch(PDO::FETCH_ASSOC)) {
-            $total_rooms += $fetch_bookings['rooms'];
+            $total_rooms += $fetch_bookings['room_no'];
             // Check if the selected room is already booked by other user for the selected dates
             if ($fetch_bookings['room_no'] == $room_no) {
                 $warning_msg[] = 'This room is already booked for the selected dates.';
@@ -93,35 +93,7 @@ if (isset($_POST['book'])) {
         $childs = $_POST['childs'];
         $childs = filter_var($childs, FILTER_SANITIZE_STRING);
 
-        //here mail sending main code starts from here
-        //Create an instance; passing `true` enables exceptions
-        $mail = new PHPMailer(true);
 
-        try {
-            //Server settings
-            $mail->isSMTP();                                            //Send using SMTP
-            $mail->Host       = 'smtp.gmail.com';                     //Set the SMTP server to send through
-            $mail->SMTPAuth   = true;                                   //Enable SMTP authentication
-            $mail->Username   = 'rohankumar770123@gmail.com';                     //SMTP username
-            $mail->Password   = 'jxtqclpngmsgpizd';                               //SMTP password
-            $mail->SMTPSecure = PHPMailer::ENCRYPTION_SMTPS;            //Enable implicit TLS encryption
-            $mail->Port       = 465;                                    //TCP port to connect to; use 587 if you have set `SMTPSecure = PHPMailer::ENCRYPTION_STARTTLS`
-        
-            //Recipients
-            $mail->setFrom('rohankumar770123@gmail.com', 'Rohan');
-            $mail->addAddress($email);     //Add a recipient
-        
-            //Content
-            $mail->isHTML(true);                                  //Set email format to HTML
-            $mail->Subject = 'Room Booked Successfully';
-            $mail->Body    = "Name: $name <br> Email: $email <br> Mobile No: $number<br>Room No: $room_no <br> Room Type: $room_type <br> Check In: $check_in <br> Check Out: $check_out <br> Adults: $adults <br> Childs: $childs";
-        
-            $mail->send();
-            $success_msg[] = 'room booked successfully!';
-        } catch (Exception $e) {
-            $warning_msg[] = 'Server Error!';
-        }
-        //Mail code ends here
 
         $total_rooms = 0;
 
@@ -137,7 +109,7 @@ if (isset($_POST['book'])) {
             $check_bookings = $conn->prepare("SELECT * FROM `bookings` WHERE check_in = ?");
             $check_bookings->execute([$check_in]);
             while ($fetch_bookings = $check_bookings->fetch(PDO::FETCH_ASSOC)) {
-                $total_rooms += $fetch_bookings['rooms'];
+                $total_rooms += $fetch_bookings['room_no'];
                 // Check if the selected room is already booked by other user for the selected dates
                 if ($fetch_bookings['room_no'] == $room_no) {
                     $warning_msg[] = 'This room is already booked for the selected dates.';
@@ -156,6 +128,39 @@ if (isset($_POST['book'])) {
                     $book_room = $conn->prepare("INSERT INTO `bookings`(booking_id, user_id, name, email, number, check_in, check_out, adults, childs, room_no, room_type) VALUES(?,?,?,?,?,?,?,?,?,?,?)");
                     $book_room->execute([$booking_id, $user_id, $name, $email, $number, $check_in, $check_out, $adults, $childs, $room_no, $room_type]);
                     $success_msg[] = 'room booked successfully!';
+
+
+                    //here mail sending main code starts from here
+                    //Create an instance; passing `true` enables exceptions
+                    $mail = new PHPMailer(true);
+
+                    try {
+                        //Server settings
+                        $mail->isSMTP();                                            //Send using SMTP
+                        $mail->Host       = 'smtp.gmail.com';                     //Set the SMTP server to send through
+                        $mail->SMTPAuth   = true;                                   //Enable SMTP authentication
+                        $mail->Username   = 'rohankumar770123@gmail.com';                     //SMTP username
+                        $mail->Password   = 'jxtqclpngmsgpizd';                               //SMTP password
+                        $mail->SMTPSecure = PHPMailer::ENCRYPTION_SMTPS;            //Enable implicit TLS encryption
+                        $mail->Port       = 465;                                    //TCP port to connect to; use 587 if you have set `SMTPSecure = PHPMailer::ENCRYPTION_STARTTLS`
+
+                        //Recipients
+                        $mail->setFrom('rohankumar770123@gmail.com', 'Rohan');
+                        $mail->addAddress($email);     //Add a recipient
+
+                        //Content
+                        $mail->isHTML(true);                                  //Set email format to HTML
+                        $mail->Subject = 'Hotel Rooms Booking System';
+                        $mail->Body    = "You have successfully booked the room. <br> Name: $name <br> Email: $email <br> Booking id: $booking_id <br> Mobile No: $number<br>Room No: $room_no <br> Room Type: $room_type <br> Check In: $check_in <br> Check Out: $check_out <br> Adults: $adults <br> Childs: $childs";
+
+                        $mail->send();
+                        $success_msg[] = 'room booked successfully!';
+                    } catch (Exception $e) {
+                        $warning_msg[] = 'Server Error!';
+                    }
+                    //Mail code ends here
+
+
                 }
             }
         }
@@ -268,25 +273,13 @@ if (isset($_POST['send'])) {
                 </div>
                 <div class="box">
                     <p>adults <span>*</span></p>
-                    <select name="adults" class="input" required>
-                        <option value="1">1 adult</option>
-                        <option value="2">2 adults</option>
-                        <option value="3">3 adults</option>
-                        <option value="4">4 adults</option>
-                        <option value="5">5 adults</option>
-                        <option value="6">6 adults</option>
-                    </select>
+                    <input name="adults"  minlength="0" maxlength="4" class="input" required>
+                    </input>
                 </div>
                 <div class="box">
                     <p>childs <span>*</span></p>
-                    <select name="childs" class="input" required>
-                        <option value="-">0 child</option>
-                        <option value="1">1 child</option>
-                        <option value="2">2 childs</option>
-                        <option value="3">3 childs</option>
-                        <option value="4">4 childs</option>
-                        <option value="5">5 childs</option>
-                    </select>
+                    <input name="childs" minlength="0" maxlength="4" class="input" required>
+                    </input>
                 </div>
                 <!-- <div class="box">
                     <p>rooms <span>*</span></p>
@@ -302,35 +295,35 @@ if (isset($_POST['send'])) {
                     <p>room no. <span>*</span></p>
                     <select name="room_no" class="input" required>
                         <option value="-">select your room no.</option>
-                        <option value="1">room no. 1</option>
-                        <option value="2">room no. 2</option>
-                        <option value="3">room no. 3</option>
-                        <option value="4">room no. 4</option>
-                        <option value="5">room no. 5</option>
-                        <option value="6">room no. 6</option>
-                        <option value="7">room no. 7</option>
-                        <option value="8">room no. 8</option>
-                        <option value="9">room no. 9</option>
-                        <option value="10">room no. 10</option>
-                        <option value="12">room no. 12</option>
-                        <option value="13">room no. 13</option>
-                        <option value="14">room no. 14</option>
-                        <option value="15">room no. 15</option>
-                        <option value="16">room no. 16</option>
-                        <option value="17">room no. 17</option>
-                        <option value="18">room no. 18</option>
-                        <option value="19">room no. 19</option>
-                        <option value="20">room no. 20</option>
-                        <option value="21">room no. 21</option>
-                        <option value="22">room no. 22</option>
-                        <option value="23">room no. 23</option>
-                        <option value="24">room no. 24</option>
-                        <option value="25">room no. 25</option>
-                        <option value="26">room no. 26</option>
-                        <option value="27">room no. 27</option>
-                        <option value="28">room no. 28</option>
-                        <option value="29">room no. 29</option>
-                        <option value="30">room no. 30</option>
+                        <option value="1">1</option>
+                        <option value="2">2</option>
+                        <option value="3">3</option>
+                        <option value="4">4</option>
+                        <option value="5">5</option>
+                        <option value="6">6</option>
+                        <option value="7">7</option>
+                        <option value="8">8</option>
+                        <option value="9">9</option>
+                        <option value="10">10</option>
+                        <option value="12">12</option>
+                        <option value="13">13</option>
+                        <option value="14">14</option>
+                        <option value="15">15</option>
+                        <option value="16">16</option>
+                        <option value="17">17</option>
+                        <option value="18">18</option>
+                        <option value="19">19</option>
+                        <option value="20">20</option>
+                        <option value="21">21</option>
+                        <option value="22">22</option>
+                        <option value="23">23</option>
+                        <option value="24">24</option>
+                        <option value="25">25</option>
+                        <option value="26">26</option>
+                        <option value="27">27</option>
+                        <option value="28">28</option>
+                        <option value="29">29</option>
+                        <option value="30">30</option>
                     </select>
                 </div>
                 <div class="box">
@@ -467,36 +460,36 @@ if (isset($_POST['send'])) {
                 <div class="box">
                     <p>room no. <span>*</span></p>
                     <select name="room_no" class="input" required>
-                        <option value="-">select your room no.</option>
-                        <option value="1">room no. 1</option>
-                        <option value="2">room no. 2</option>
-                        <option value="3">room no. 3</option>
-                        <option value="4">room no. 4</option>
-                        <option value="5">room no. 5</option>
-                        <option value="6">room no. 6</option>
-                        <option value="7">room no. 7</option>
-                        <option value="8">room no. 8</option>
-                        <option value="9">room no. 9</option>
-                        <option value="10">room no. 10</option>
-                        <option value="12">room no. 12</option>
-                        <option value="13">room no. 13</option>
-                        <option value="14">room no. 14</option>
-                        <option value="15">room no. 15</option>
-                        <option value="16">room no. 16</option>
-                        <option value="17">room no. 17</option>
-                        <option value="18">room no. 18</option>
-                        <option value="19">room no. 19</option>
-                        <option value="20">room no. 20</option>
-                        <option value="21">room no. 21</option>
-                        <option value="22">room no. 22</option>
-                        <option value="23">room no. 23</option>
-                        <option value="24">room no. 24</option>
-                        <option value="25">room no. 25</option>
-                        <option value="26">room no. 26</option>
-                        <option value="27">room no. 27</option>
-                        <option value="28">room no. 28</option>
-                        <option value="29">room no. 29</option>
-                        <option value="30">room no. 30</option>
+                        <option value="-">Select your room no.</option>
+                        <option value="1">1</option>
+                        <option value="2">2</option>
+                        <option value="3">3</option>
+                        <option value="4">4</option>
+                        <option value="5">5</option>
+                        <option value="6">6</option>
+                        <option value="7">7</option>
+                        <option value="8">8</option>
+                        <option value="9">9</option>
+                        <option value="10">10</option>
+                        <option value="12">12</option>
+                        <option value="13">13</option>
+                        <option value="14">14</option>
+                        <option value="15">15</option>
+                        <option value="16">16</option>
+                        <option value="17">17</option>
+                        <option value="18">18</option>
+                        <option value="19">19</option>
+                        <option value="20">20</option>
+                        <option value="21">21</option>
+                        <option value="22">22</option>
+                        <option value="23">23</option>
+                        <option value="24">24</option>
+                        <option value="25">25</option>
+                        <option value="26">26</option>
+                        <option value="27">27</option>
+                        <option value="28">28</option>
+                        <option value="29">29</option>
+                        <option value="30">30</option>
                     </select>
                 </div>
                 <div class="box">
@@ -517,26 +510,13 @@ if (isset($_POST['send'])) {
                 </div>
                 <div class="box">
                     <p>adults <span>*</span></p>
-                    <select name="adults" class="input" required>
-                        <option value="1" selected>1 adult</option>
-                        <option value="2">2 adults</option>
-                        <option value="3">3 adults</option>
-                        <option value="4">4 adults</option>
-                        <option value="5">5 adults</option>
-                        <option value="6">6 adults</option>
-                    </select>
+                    <input type="number" name="adults"minlength="0" maxlength="4" class="input" required>
+                    </input>
                 </div>
                 <div class="box">
                     <p>childs <span>*</span></p>
-                    <select name="childs" class="input" required>
-                        <option value="0" selected>0 child</option>
-                        <option value="1">1 child</option>
-                        <option value="2">2 childs</option>
-                        <option value="3">3 childs</option>
-                        <option value="4">4 childs</option>
-                        <option value="5">5 childs</option>
-                        <option value="6">6 childs</option>
-                    </select>
+                    <input type="number"name="childs" minlength="0" maxlength="4" class="input" required>
+                    </input>
                 </div>
             </div>
             <input type="submit" value="book now" name="book" class="btn">

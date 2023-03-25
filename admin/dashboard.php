@@ -47,7 +47,9 @@ if (isset($_COOKIE['admin_id'])) {
                 ?>
                 <h3>Welcome!</h3>
                 <p><?= $fetch_profile['name']; ?></p>
-                <a href="update.php" class="btn">update profile</a>
+                <a href="view_detail.php" class="btn">View Profile Detail</a>
+                <a href="update_pass.php" class="btn">Update Password</a>
+                <a href="update.php" class="btn">Update Personal Details</a>
             </div>
 
             <div class="box">
@@ -84,7 +86,7 @@ if (isset($_COOKIE['admin_id'])) {
             </div>
 
             <div class="box">
-                <h3>quick select</h3>
+                <h3>Quick Select</h3>
                 <p>login or register </p>
                 <a href="login.php" class="btn" style="margin-right: 1rem;">login</a>
                 <a href="register.php" class="btn" style="margin-left: 1rem;">register</a>

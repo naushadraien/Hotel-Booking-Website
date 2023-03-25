@@ -2,10 +2,10 @@
 <section class="footer">
     <div class="box-container">
         <div class="box">
-            <a href="tel:1234567890"><i class="fas fa-phone"></i> +123-456-7890</a>
-            <a href="tel:1112223333"><i class="fas fa-phone"></i> +111-222-3333</a>
-            <a href="mailto:shakhanas@gmail.com"><i class="fas fa-envelope"></i> shakhanas@gmail.com</a>
-            <a href="#"><i class="fas fa-map-marker-alt"></i>Mumbai, India - 400104</a>
+            <a href="tel:1234567890"><i class="fas fa-phone"></i> 01-5970170</a>
+            <a href="tel:1112223333"><i class="fas fa-phone"></i> +977-9855233330</a>
+            <a href="mailto:hotelroomsbooking@gmail.com"><i class="fas fa-envelope"></i> hotelroomsbooking@gmail.com</a>
+            <a href="#"><i class="fas fa-map-marker-alt"></i>Kathmandu, Nepal</a>
         </div>
         <div class="box">
             <a href="#home">home</a>

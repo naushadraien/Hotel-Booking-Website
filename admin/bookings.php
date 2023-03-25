@@ -89,6 +89,10 @@ if(isset($_POST['delete'])){
             }
             ?>
         </div>
+        <div class="box" style="text-align: center;">
+        <a href="update_bookings.php" class="btn">Update Bookings</a> 
+        </div>
+
     </section>
     <!-- ------------bookings section end----------- -->
 
